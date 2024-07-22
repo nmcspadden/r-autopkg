@@ -5,9 +5,9 @@ use clap::{Parser, Subcommand};
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 struct APcli {
-    /// Sets a custom config file
+    /// Sets a custom preferences file
     #[arg(short, long, value_name = "FILE")]
-    config: Option<PathBuf>,
+    prefs: Option<PathBuf>,
 
     /// Turn debugging information on
     #[arg(short, long, action = clap::ArgAction::Count)]
@@ -19,19 +19,23 @@ struct APcli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// does testing things
-    Test {
-        /// lists test values
-        #[arg(short, long)]
-        list: bool,
+    /// Audit one or more recipes
+    Audit {
+        /// Path to a text file with a list of recipes to audit
+        #[arg(short = 'l', long = "recipe-list", value_name = "TEXT_FILE")]
+        recipelist: Option<PathBuf>,
     },
+    // Info {
+    //     /// Display the help message
+    //     #[arg(short, long)]
+    // },
 }
 
 fn main() {
     let cli: APcli = APcli::parse();
 
     // You can check the value provided by positional arguments, or option arguments
-    if let Some(config_path) = cli.config.as_deref() {
+    if let Some(config_path) = cli.prefs.as_deref() {
         println!("Value for config: {}", config_path.display());
     }
 
@@ -47,9 +51,9 @@ fn main() {
     // You can check for the existence of subcommands, and if found use their
     // matches just as you would the top level cmd
     match &cli.command {
-        Some(Commands::Test { list }) => {
-            if *list {
-                // This would be from "test -l" or "test --list"
+        Some(Commands::Audit { recipelist }) => {
+            if recipelist.is_some() {
+                // This would be from "audit -d <something>" or "audit --list"
                 println!("Printing testing lists...");
             } else {
                 // This is if --list is not specified as a flag
