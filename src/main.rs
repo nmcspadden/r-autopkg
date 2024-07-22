@@ -25,10 +25,12 @@ enum Commands {
         #[arg(short = 'l', long = "recipe-list", value_name = "TEXT_FILE")]
         recipelist: Option<PathBuf>,
     },
-    // Info {
-    //     /// Display the help message
-    //     #[arg(short, long)]
-    // },
+    /// Get info about configuration or a recipe
+    Info {
+        /// Display the help message
+        #[arg(short, long)]
+        quiet: bool,
+    },
 }
 
 fn main() {
@@ -58,6 +60,15 @@ fn main() {
             } else {
                 // This is if --list is not specified as a flag
                 println!("Not printing testing lists...");
+            }
+        }
+        Some(Commands::Info { quiet }) => {
+            if *quiet {
+                // This would be from "info --quiet"
+                println!("Quiet mode is on");
+            } else {
+                // This is if --quiet is not specified as a flag
+                println!("Quiet mode is off");
             }
         }
         None => {} // This is if no subcommand is used
