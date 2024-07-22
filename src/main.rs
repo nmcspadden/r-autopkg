@@ -63,6 +63,15 @@ enum Commands {
         #[arg(short, long)]
         quiet: bool,
     },
+    /// List all available Processors
+    ListProcessors {
+        /// List only Core processors
+        #[arg(short='o', long)]
+        core: bool,
+        /// List only custom processors
+        #[arg(short='c', long)]
+        custom: bool,
+    },
 }
 
 /// Parse a single key-value pair
@@ -141,6 +150,21 @@ fn main() {
                 for (k, v) in key {
                     println!("Key: {}, Value: {}", k, v);
                 }
+            }
+        }
+        Some(Commands::ListProcessors {
+            core,
+            custom,
+        }) => {
+            if *core {
+                // This would be from "list-processors -o"
+                println!("Listing core processors");
+            } else if *custom {
+                // This would be from "list-processors -c"
+                println!("Listing custom processors");
+            } else {
+                // This is if neither -o nor -c are specified as flags
+                println!("Listing all processors");
             }
         }
         None => {} // This is if no subcommand is used
