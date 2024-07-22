@@ -23,18 +23,24 @@ struct APcli {
 enum Commands {
     /// Audit one or more recipes
     Audit {
+        /// Recipe name
+        recipe: String,
         /// Path to a text file with a list of recipes to audit
         #[arg(short = 'l', long = "recipe-list", value_name = "TEXT_FILE")]
         recipelist: Option<PathBuf>,
     },
     /// Get info about configuration or a recipe
     Info {
+        /// Recipe name
+        recipe: String,
         /// Don't offer to search GitHub if a recipe can't be found
         #[arg(short, long)]
         quiet: bool,
     },
     /// Run one or more install recipes. Example: autopkg install Firefox -- equivalent to: autopkg run Firefox.install
     Install {
+        /// Recipe name
+        recipe: String,
         /// Name of a processor to run before each recipe. Can be repeated to run multiple preprocessors
         #[arg(short = 'r', long, value_name = "PREPROCESSOR")]
         preprocessor: Option<String>,
@@ -65,6 +71,7 @@ enum Commands {
     },
     /// List all available Processors
     ListProcessors {
+        #[clap(visible_alias = "processor-list")]
         /// List only Core processors
         #[arg(short = 'o', long)]
         core: bool,
@@ -88,6 +95,8 @@ enum Commands {
     },
     /// Make a recipe override
     MakeOverride {
+        /// Recipe to create override for
+        recipe: String,
         /// Name for override file
         #[arg(short, long, value_name = "FILENAME")]
         name: Option<String>,
@@ -104,7 +113,12 @@ enum Commands {
     /// Make a new template recipe
     NewRecipe {
         /// Identifier for the new recipe
-        #[arg(short, long, value_name = "IDENTIFIER", default_value = "com.github.autopkg.CHANGEME")]
+        #[arg(
+            short,
+            long,
+            value_name = "IDENTIFIER",
+            default_value = "com.github.autopkg.CHANGEME"
+        )]
         identifier: String,
         /// Parent recipe identifier for this recipe
         #[arg(short, long = "parent-identifier", value_name = "IDENTIFIER")]
@@ -112,6 +126,11 @@ enum Commands {
         /// The format of the recipe to be created. Valid options include: 'plist' or 'yaml' (default)
         #[arg(long, value_name = "FORMAT", default_value_t = Format::Yaml)]
         format: Format,
+    },
+    /// Get information about a specific processor
+    ProcessorInfo {
+        /// Name of processor
+        processor: Option<String>,
     },
 }
 
@@ -167,23 +186,24 @@ fn main() {
     // You can check for the existence of subcommands, and if found use their
     // matches just as you would the top level cmd
     match &cli.command {
-        Some(Commands::Audit { recipelist }) => {
-            if recipelist.is_some() {
-                // This would be from "audit -d <something>" or "audit --list"
-                println!("Printing testing lists...");
+        Some(Commands::Audit { recipelist, recipe }) => {
+            // This would be from "audit -l <recipelist>"
+            if let Some(recipelist) = recipelist {
+                println!("Auditing recipes from list: {}", recipelist.display());
             } else {
-                // This is if --list is not specified as a flag
-                println!("Not printing testing lists...");
+                // This is if -l is not specified as a flag
+                println!("Auditing recipe: {}", recipe);
             }
         }
-        Some(Commands::Info { quiet }) => {
+        Some(Commands::Info { quiet, recipe }) => {
+            // This would be from "info --quiet <recipe>"
             if *quiet {
-                // This would be from "info --quiet"
                 println!("Quiet mode is on");
             } else {
                 // This is if --quiet is not specified as a flag
                 println!("Quiet mode is off");
             }
+            println!("Getting info for recipe: {}", recipe);
         }
         Some(Commands::Install {
             check,
@@ -195,25 +215,23 @@ fn main() {
             pkg: _,
             reportplist: _,
             quiet: _,
+            recipe,
         }) => {
+            // This would be from "install --check <recipe>"
             if *check {
-                // This would be from "install --check"
-                println!("Check mode is on");
+                println!("Checking for new/changed downloads");
             } else {
                 // This is if --check is not specified as a flag
-                println!("Check mode is off");
+                println!("Not checking for new/changed downloads");
             }
+            println!("Installing recipe: {}", recipe);
             if let Some(key) = key {
-                // This would be from "install -k key=value"
                 for (k, v) in key {
                     println!("Key: {}, Value: {}", k, v);
                 }
             }
         }
-        Some(Commands::ListProcessors {
-            core,
-            custom,
-        }) => {
+        Some(Commands::ListProcessors { core, custom }) => {
             if *core {
                 // This would be from "list-processors -o"
                 println!("Listing core processors");
@@ -225,10 +243,7 @@ fn main() {
                 println!("Listing all processors");
             }
         }
-        Some(Commands::ListRecipes {
-            identifiers,
-            paths,
-        }) => {
+        Some(Commands::ListRecipes { identifiers, paths }) => {
             if *identifiers {
                 // This would be from "list-recipes -i"
                 println!("Listing recipes with identifiers");
@@ -240,26 +255,32 @@ fn main() {
                 println!("Listing recipes");
             }
         }
-        Some(Commands::ListRepos {
-            // no subcommands
-        }) => {
+        Some(Commands::ListRepos {}) => {
             // This would be from "list-repos"
             println!("Listing repos");
         }
-        Some(Commands::MakeOverride { name, force, ignoredeprecation, format }) => {
+        Some(Commands::MakeOverride {
+            name,
+            force,
+            ignoredeprecation,
+            format,
+            recipe,
+        }) => {
+            // This would be from "make-override <recipe>"
+            println!("Making override for recipe: {}", recipe);
             if let Some(name) = name {
-                // This would be from "make-override -n <name>"
-                println!("Making override with name: {}", name);
+                // This would be from "make-override --name <name>"
+                println!("Override name: {}", name);
             } else {
-                // This is if -n is not specified as a flag
-                println!("Making override");
+                // This is if --name is not specified as a flag
+                println!("No override name");
             }
             if *force {
                 // This would be from "make-override --force"
-                println!("Forcing override");
+                println!("Forcing override creation");
             } else {
                 // This is if --force is not specified as a flag
-                println!("Not forcing override");
+                println!("Not forcing override creation");
             }
             if *ignoredeprecation {
                 // This would be from "make-override --ignore-deprecation"
@@ -270,7 +291,11 @@ fn main() {
             }
             println!("Format: {}", format);
         }
-        Some(Commands::NewRecipe { identifier, parent, format }) => {
+        Some(Commands::NewRecipe {
+            identifier,
+            parent,
+            format,
+        }) => {
             // This would be from "new-recipe -i <identifier>"
             println!("Making new recipe with identifier: {}", identifier);
             if let Some(parent) = parent {
@@ -281,6 +306,15 @@ fn main() {
                 println!("No parent identifier");
             }
             println!("Format: {}", format);
+        }
+        Some(Commands::ProcessorInfo { processor }) => {
+            if let Some(processor) = processor {
+                // This would be from "processor-info <processor>"
+                println!("Getting info for processor: {}", processor);
+            } else {
+                // This is if <processor> is not specified
+                println!("Getting info for all processors");
+            }
         }
         None => {} // This is if no subcommand is used
     }
