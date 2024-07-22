@@ -72,6 +72,16 @@ enum Commands {
         #[arg(short='c', long)]
         custom: bool,
     },
+    /// List recipes available locally
+    ListRecipes {
+        // TODO: Consider turning this into a table
+        /// Include recipe's identifier in the list
+        #[arg(short, long="with-identifiers")]
+        identifiers: bool,
+        /// Include recipe's path in the list
+        #[arg(short, long="with-paths")]
+        paths: bool,
+    },
 }
 
 /// Parse a single key-value pair
@@ -167,6 +177,22 @@ fn main() {
                 println!("Listing all processors");
             }
         }
+        Some(Commands::ListRecipes {
+            identifiers,
+            paths,
+        }) => {
+            if *identifiers {
+                // This would be from "list-recipes -i"
+                println!("Listing recipes with identifiers");
+            } else if *paths {
+                // This would be from "list-recipes -p"
+                println!("Listing recipes with paths");
+            } else {
+                // This is if neither -i nor -p are specified as flags
+                println!("Listing recipes");
+            }
+        }
+
         None => {} // This is if no subcommand is used
     }
 
