@@ -123,7 +123,7 @@ fn main() {
             preprocessor: _,
             postprocessor: _,
             ignore: _,
-            key: _,
+            key,
             recipelist: _,
             pkg: _,
             reportplist: _,
@@ -135,6 +135,12 @@ fn main() {
             } else {
                 // This is if --check is not specified as a flag
                 println!("Check mode is off");
+            }
+            if let Some(key) = key {
+                // This would be from "install -k key=value"
+                for (k, v) in key {
+                    println!("Key: {}, Value: {}", k, v);
+                }
             }
         }
         None => {} // This is if no subcommand is used
