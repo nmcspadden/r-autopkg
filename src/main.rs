@@ -66,22 +66,70 @@ enum Commands {
     /// List all available Processors
     ListProcessors {
         /// List only Core processors
-        #[arg(short='o', long)]
+        #[arg(short = 'o', long)]
         core: bool,
         /// List only custom processors
-        #[arg(short='c', long)]
+        #[arg(short = 'c', long)]
         custom: bool,
     },
     /// List recipes available locally
     ListRecipes {
         // TODO: Consider turning this into a table
         /// Include recipe's identifier in the list
-        #[arg(short, long="with-identifiers")]
+        #[arg(short, long = "with-identifiers")]
         identifiers: bool,
         /// Include recipe's path in the list
-        #[arg(short, long="with-paths")]
+        #[arg(short, long = "with-paths")]
         paths: bool,
     },
+    /// List installed recipe repos
+    ListRepos {
+        // no subcommands
+    },
+    /// Make a recipe override
+    MakeOverride {
+        /// Name for override file
+        #[arg(short, long, value_name = "FILENAME")]
+        name: Option<String>,
+        /// Force overwrite an override file
+        #[arg(short, long)]
+        force: bool,
+        /// Make an override even if the specified recipe or one of its parents is deprecated
+        #[arg(long = "ignore-deprecation")]
+        ignoredeprecation: bool,
+        /// The format of the recipe override to be created. Valid options include: 'plist' or 'yaml' (default)
+        #[arg(long, value_name = "FORMAT", default_value_t = Format::Yaml)]
+        format: Format,
+    },
+    /// Make a new template recipe
+    NewRecipe {
+        /// Identifier for the new recipe
+        #[arg(short, long, value_name = "IDENTIFIER", default_value = "com.github.autopkg.CHANGEME")]
+        identifier: String,
+        /// Parent recipe identifier for this recipe
+        #[arg(short, long = "parent-identifier", value_name = "IDENTIFIER")]
+        parent: Option<String>,
+        /// The format of the recipe to be created. Valid options include: 'plist' or 'yaml' (default)
+        #[arg(long, value_name = "FORMAT", default_value_t = Format::Yaml)]
+        format: Format,
+    },
+}
+
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, clap::ValueEnum)]
+enum Format {
+    /// Property List format
+    Plist,
+    /// Yaml format
+    Yaml,
+}
+
+impl std::fmt::Display for Format {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Format::Plist => write!(f, "plist"),
+            Format::Yaml => write!(f, "yaml"),
+        }
+    }
 }
 
 /// Parse a single key-value pair
@@ -192,7 +240,48 @@ fn main() {
                 println!("Listing recipes");
             }
         }
-
+        Some(Commands::ListRepos {
+            // no subcommands
+        }) => {
+            // This would be from "list-repos"
+            println!("Listing repos");
+        }
+        Some(Commands::MakeOverride { name, force, ignoredeprecation, format }) => {
+            if let Some(name) = name {
+                // This would be from "make-override -n <name>"
+                println!("Making override with name: {}", name);
+            } else {
+                // This is if -n is not specified as a flag
+                println!("Making override");
+            }
+            if *force {
+                // This would be from "make-override --force"
+                println!("Forcing override");
+            } else {
+                // This is if --force is not specified as a flag
+                println!("Not forcing override");
+            }
+            if *ignoredeprecation {
+                // This would be from "make-override --ignore-deprecation"
+                println!("Ignoring deprecation");
+            } else {
+                // This is if --ignore-deprecation is not specified as a flag
+                println!("Not ignoring deprecation");
+            }
+            println!("Format: {}", format);
+        }
+        Some(Commands::NewRecipe { identifier, parent, format }) => {
+            // This would be from "new-recipe -i <identifier>"
+            println!("Making new recipe with identifier: {}", identifier);
+            if let Some(parent) = parent {
+                // This would be from "new-recipe --parent-identifier <parent>"
+                println!("Parent identifier: {}", parent);
+            } else {
+                // This is if --parent-identifier is not specified as a flag
+                println!("No parent identifier");
+            }
+            println!("Format: {}", format);
+        }
         None => {} // This is if no subcommand is used
     }
 
