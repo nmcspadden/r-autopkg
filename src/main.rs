@@ -215,6 +215,10 @@ enum Commands {
         #[arg(short, long="recipe-list", value_name="TEXT_FILE")]
         recipelist: Option<PathBuf>,
     },
+    /// Print the current version of autopkg
+    Version {
+        //no subcommands
+    }
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, clap::ValueEnum)]
@@ -578,6 +582,10 @@ fn main() {
                 // This is if -l is not specified as a flag
                 println!("Verifying trust info for single recipe");
             }
+        }
+        Some(Commands::Version {}) => {
+            // This would be from "version"
+            println!("Printing version");
         }
         None => {} // This is if no subcommand is used
     }
