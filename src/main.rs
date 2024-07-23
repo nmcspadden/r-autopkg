@@ -144,6 +144,13 @@ enum Commands {
     RepoAdd {
         /// A repo name in AutoPkg org, user/repo combo, or URL of an AutoPkg recipe git repo
         recipe_repo_url: String,
+    },
+    /// Delete a recipe repo
+    /// 
+    /// The argument can be either the full path to a local recipe repo on disk, or a conventional shortname like "name-recipes"
+    RepoDelete {
+        /// A repo name ("name-recipes") or full path to a recipe repo to delete and remove from search path
+        recipe_repo_path_or_name: String,
     }
 }
 
@@ -385,6 +392,10 @@ fn main() {
         Some(Commands::RepoAdd { recipe_repo_url }) => {
             // This would be from "repo-add <recipe_repo_url>"
             println!("Adding repo: {}", recipe_repo_url);
+        }
+        Some(Commands::RepoDelete { recipe_repo_path_or_name }) => {
+            // This would be from "repo-delete <recipe_repo_path_or_url>"
+            println!("Deleting repo: {}", recipe_repo_path_or_name);
         }
         None => {} // This is if no subcommand is used
     }
