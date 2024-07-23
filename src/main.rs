@@ -133,6 +133,18 @@ enum Commands {
         /// Name of processor
         processor: Option<String>,
     },
+    /// Add one or more recipe repos from a URL, or AutoPkg org on GitHub
+    /// 
+    /// Download one or more new recipe repos and add it to the search path
+    /// The 'recipe_repo_url' argument can be of the following forms:
+    /// - repo (implies 'https://github.com/autopkg/repo')
+    /// - user/repo (implies 'https://github.com/user/repo')
+    /// - (http[s]://|git://|ssh://|user@server:)path/to/any/git/repo
+    #[command(verbatim_doc_comment)]
+    RepoAdd {
+        /// A repo name in AutoPkg org, user/repo combo, or URL of an AutoPkg recipe git repo
+        recipe_repo_url: String,
+    }
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, clap::ValueEnum)]
@@ -369,6 +381,10 @@ fn main() {
                 // This is if <processor> is not specified
                 println!("Getting info for all processors");
             }
+        }
+        Some(Commands::RepoAdd { recipe_repo_url }) => {
+            // This would be from "repo-add <recipe_repo_url>"
+            println!("Adding repo: {}", recipe_repo_url);
         }
         None => {} // This is if no subcommand is used
     }
