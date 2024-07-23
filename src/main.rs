@@ -39,7 +39,7 @@ enum Commands {
     },
     /// Run one or more install recipes. Example: autopkg install Firefox -- equivalent to: autopkg run Firefox.install
     Install {
-        /// Recipe name
+        /// Recipe name without suffix (i.e. "Firefox" not "Firefox.install")
         recipe: String,
         /// Name of a processor to run before each recipe. Can be repeated to run multiple preprocessors
         #[arg(short = 'r', long, value_name = "PREPROCESSOR")]
@@ -156,6 +156,38 @@ enum Commands {
     RepoUpdate {
         /// A repo name ("name-recipes") to update (git pull) from GitHub
         repo_name: String,
+    },
+    /// Run one or more recipes. Example: autopkg run Firefox.munki
+    Run {
+        /// Recipe name
+        recipe: String,
+        /// Name of a processor to run before each recipe. Can be repeated to run multiple preprocessors
+        #[arg(short = 'r', long, value_name = "PREPROCESSOR")]
+        preprocessor: Option<String>,
+        /// Name of a processor to run after each recipe. Can be repeated to run multiple postprocessors
+        #[arg(short = 'o', long, value_name = "POSTPROCESSOR")]
+        postprocessor: Option<String>,
+        /// Only check for new/changed downloads
+        #[arg(short, long)]
+        check: bool,
+        /// Run recipes even if they fail parent trust verification
+        #[arg(short, long = "ignore-parent-trust-verification-errors")]
+        ignore: bool,
+        /// Provide key/value pairs for recipe input. Caution: values specified here will be applied to all recipes
+        #[arg(short, long, value_name = "KEY=VALUE", value_parser = parse_key_value::<String, String>)]
+        key: Option<Vec<(String, String)>>,
+        /// Path to a text file with a list of recipes to run
+        #[arg(short = 'l', long = "recipe-list", value_name = "TEXT_FILE")]
+        recipelist: Option<PathBuf>,
+        /// Path to a pkg or dmg to provide to a recipe. Downloading will be skipped
+        #[arg(short, long, value_name = "PKG_OR_DMG")]
+        pkg: Option<PathBuf>,
+        /// File path to save run report plist
+        #[arg(long = "report-plist", value_name = "OUTPUT_PATH")]
+        reportplist: Option<PathBuf>,
+        /// Don't offer to search GitHub if a recipe can't be found
+        #[arg(short, long)]
+        quiet: bool,
     },
 }
 
@@ -405,6 +437,85 @@ fn main() {
         Some(Commands::RepoUpdate { repo_name }) => {
             // This would be from "repo-update <repo_name>"
             println!("Updating repo: {}", repo_name);
+        }
+        Some(Commands::Run {
+            check,
+            preprocessor,
+            postprocessor,
+            ignore,
+            key,
+            recipelist,
+            pkg,
+            reportplist,
+            quiet,
+            recipe,
+        }) => {
+            // This would be from "run --check <recipe>"
+            if *check {
+                println!("Checking for new/changed downloads");
+            } else {
+                // This is if --check is not specified as a flag
+                println!("Not checking for new/changed downloads");
+            }
+            if let Some(preprocessor) = preprocessor {
+                // This would be from "run -r <preprocessor>"
+                println!("Preprocessor: {}", preprocessor);
+            } else {
+                // This is if -r is not specified as a flag
+                println!("No preprocessor");
+            }
+            if let Some(postprocessor) = postprocessor {
+                // This would be from "run -o <postprocessor>"
+                println!("Postprocessor: {}", postprocessor);
+            } else {
+                // This is if -o is not specified as a flag
+                println!("No postprocessor");
+            }
+            if *ignore {
+                // This would be from "run --ignore-parent-trust-verification-errors"
+                println!("Ignoring parent trust verification errors");
+            } else {
+                // This is if --ignore-parent-trust-verification-errors is not specified as a flag
+                println!("Not ignoring parent trust verification errors");
+            }
+            if let Some(recipelist) = recipelist {
+                // This would be from "run <recipe> -l <recipelist>"
+                println!("Running recipes from list: {}", recipelist.display());
+            } else {
+                // This is if -l is not specified as a flag
+                println!("Running recipe: {}", recipe);
+            }
+            if let Some(pkg) = pkg {
+                // This would be from "run <recipe> <pkg>"
+                println!("Providing pkg/dmg: {}", pkg.display());
+            } else {
+                // This is if <pkg> is not specified
+                println!("No pkg/dmg provided");
+            }
+            if let Some(reportplist) = reportplist {
+                // This would be from "run <recipe> --report-plist <reportplist>"
+                println!("Saving run report plist to: {}", reportplist.display());
+            } else {
+                // This is if --report
+                println!("No report plist saved");
+            }
+            if *quiet {
+                // This would be from "run <recipe> --quiet"
+                println!("Quiet mode is on");
+            } else {
+                // This is if --quiet is not specified as a flag
+                println!("Quiet mode is off");
+            }
+            if let Some(key) = key {
+                // This would be from "run <recipe> -k <key>"
+                println!("-k pair specified:");
+                for (k, v) in key {
+                    println!("{}: {}", k, v);
+                }
+            } else {
+                // This is if -k is not specified as a flag
+                println!("No key/value pairs provided");
+            }
         }
         None => {} // This is if no subcommand is used
     }
