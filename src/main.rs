@@ -207,14 +207,14 @@ fn main() {
         }
         Some(Commands::Install {
             check,
-            preprocessor: _,
-            postprocessor: _,
-            ignore: _,
+            preprocessor,
+            postprocessor,
+            ignore,
             key,
-            recipelist: _,
-            pkg: _,
-            reportplist: _,
-            quiet: _,
+            recipelist,
+            pkg,
+            reportplist,
+            quiet,
             recipe,
         }) => {
             // This would be from "install --check <recipe>"
@@ -224,11 +224,64 @@ fn main() {
                 // This is if --check is not specified as a flag
                 println!("Not checking for new/changed downloads");
             }
-            println!("Installing recipe: {}", recipe);
+            if let Some(preprocessor) = preprocessor {
+                // This would be from "install -r <preprocessor>"
+                println!("Preprocessor: {}", preprocessor);
+            } else {
+                // This is if -r is not specified as a flag
+                println!("No preprocessor");
+            }
+            if let Some(postprocessor) = postprocessor {
+                // This would be from "install -o <postprocessor>"
+                println!("Postprocessor: {}", postprocessor);
+            } else {
+                // This is if -o is not specified as a flag
+                println!("No postprocessor");
+            }
+            if *ignore {
+                // This would be from "install --ignore-parent-trust-verification-errors"
+                println!("Ignoring parent trust verification errors");
+            } else {
+                // This is if --ignore-parent-trust-verification-errors is not specified as a flag
+                println!("Not ignoring parent trust verification errors");
+            }
+            if let Some(recipelist) = recipelist {
+                // This would be from "install <recipe> -l <recipelist>"
+                println!("Running recipes from list: {}", recipelist.display());
+            } else {
+                // This is if -l is not specified as a flag
+                println!("Running recipe: {}", recipe);
+            }
+            if let Some(pkg) = pkg {
+                // This would be from "install <recipe> <pkg>"
+                println!("Providing pkg/dmg: {}", pkg.display());
+            } else {
+                // This is if <pkg> is not specified
+                println!("No pkg/dmg provided");
+            }
+            if let Some(reportplist) = reportplist {
+                // This would be from "install <recipe> --report-plist <reportplist>"
+                println!("Saving run report plist to: {}", reportplist.display());
+            } else {
+                // This is if --report
+                println!("No report plist saved");
+            }
+            if *quiet {
+                // This would be from "install <recipe> --quiet"
+                println!("Quiet mode is on");
+            } else {
+                // This is if --quiet is not specified as a flag
+                println!("Quiet mode is off");
+            }
             if let Some(key) = key {
+                // This would be from "install <recipe> -k <key>"
+                println!("-k pair specified:");
                 for (k, v) in key {
-                    println!("Key: {}, Value: {}", k, v);
+                    println!("{}: {}", k, v);
                 }
+            } else {
+                // This is if -k is not specified as a flag
+                println!("No key/value pairs provided");
             }
         }
         Some(Commands::ListProcessors { core, custom }) => {
