@@ -5,7 +5,7 @@ use std::error::Error;
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
-#[command(version, about, long_about = None)]
+#[command(version, about, long_about = None, arg_required_else_help = true)]
 struct APcli {
     /// Sets a custom preferences file
     #[arg(short, long, value_name = "FILE")]
@@ -70,8 +70,8 @@ enum Commands {
         quiet: bool,
     },
     /// List all available Processors
+    #[clap(visible_alias = "processor-list")]
     ListProcessors {
-        #[clap(visible_alias = "processor-list")]
         /// List only Core processors
         #[arg(short = 'o', long)]
         core: bool,
@@ -90,6 +90,7 @@ enum Commands {
         paths: bool,
     },
     /// List installed recipe repos
+    #[clap(visible_alias = "repo-list")]
     ListRepos {
         // no subcommands
     },
