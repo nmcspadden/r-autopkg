@@ -189,6 +189,16 @@ enum Commands {
         #[arg(short, long)]
         quiet: bool,
     },
+    /// Search for recipes on GitHub
+    /// 
+    /// The AutoPkg organization at github.com/autopkg is the canonical 'repository' of recipe repos, which is what is searched by default
+    Search {
+        /// Search term
+        search_term: String,
+        /// Use a public-scope GitHub token for a higher rate limit
+        #[arg(short, long="use-token")]
+        token: Option<String>,
+    },
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, clap::ValueEnum)]
@@ -515,6 +525,17 @@ fn main() {
             } else {
                 // This is if -k is not specified as a flag
                 println!("No key/value pairs provided");
+            }
+        }
+        Some(Commands::Search { search_term, token }) => {
+            // This would be from "search <search_term>"
+            println!("Searching for: {}", search_term);
+            if let Some(token) = token {
+                // This would be from "search <search_term> --use-token <token>"
+                println!("Using token: {}", token);
+            } else {
+                // This is if --use-token is not specified as a flag
+                println!("Not using token");
             }
         }
         None => {} // This is if no subcommand is used
