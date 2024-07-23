@@ -199,6 +199,22 @@ enum Commands {
         #[arg(short, long="use-token")]
         token: Option<String>,
     },
+    /// Update or add parent recipe trust info for a recipe override
+    UpdateTrustInfo {
+        /// Recipe override name. Must be an existing override file - use 'make-override' to create one first
+        recipe: String,
+    },
+    /// Verify parent recipe trust info for a recipe override
+    VerifyTrustInfo {
+        /// Recipe override name. Must be an existing override file
+        recipe: String,
+        /// Verbose output. May be specified multiple times
+        #[arg(short, long, action = clap::ArgAction::Count)]
+        verbose: u8,
+        /// Path to a text file with a list of recipes to verify
+        #[arg(short, long="recipe-list", value_name="TEXT_FILE")]
+        recipelist: Option<PathBuf>,
+    },
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, clap::ValueEnum)]
@@ -536,6 +552,31 @@ fn main() {
             } else {
                 // This is if --use-token is not specified as a flag
                 println!("Not using token");
+            }
+        }
+        Some(Commands::UpdateTrustInfo { recipe }) => {
+            // This would be from "update-trust-info <recipe>"
+            println!("Updating trust info for recipe: {}", recipe);
+        }
+        Some(Commands::VerifyTrustInfo {
+            recipe,
+            verbose,
+            recipelist,
+        }) => {
+            // This would be from "verify-trust-info <recipe>"
+            println!("Verifying trust info for recipe: {}", recipe);
+            match verbose {
+                0 => println!("Verbose mode is off"),
+                1 => println!("Verbose mode is 1"),
+                2 => println!("Verbose mode is 2"),
+                _ => println!("HOLY SMOKES THAT'S SOME VERBOSITY"),
+            }
+            if let Some(recipelist) = recipelist {
+                // This would be from "verify-trust-info <recipe> -l <recipelist>"
+                println!("Verifying trust info for recipes from list: {}", recipelist.display());
+            } else {
+                // This is if -l is not specified as a flag
+                println!("Verifying trust info for single recipe");
             }
         }
         None => {} // This is if no subcommand is used
