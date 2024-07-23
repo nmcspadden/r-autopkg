@@ -151,7 +151,12 @@ enum Commands {
     RepoDelete {
         /// A repo name ("name-recipes") or full path to a recipe repo to delete and remove from search path
         recipe_repo_path_or_name: String,
-    }
+    },
+    /// Update a recipe repo
+    RepoUpdate {
+        /// A repo name ("name-recipes") to update (git pull) from GitHub
+        repo_name: String,
+    },
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, clap::ValueEnum)]
@@ -396,6 +401,10 @@ fn main() {
         Some(Commands::RepoDelete { recipe_repo_path_or_name }) => {
             // This would be from "repo-delete <recipe_repo_path_or_url>"
             println!("Deleting repo: {}", recipe_repo_path_or_name);
+        }
+        Some(Commands::RepoUpdate { repo_name }) => {
+            // This would be from "repo-update <repo_name>"
+            println!("Updating repo: {}", repo_name);
         }
         None => {} // This is if no subcommand is used
     }
