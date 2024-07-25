@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Identifier</key>
+	<string>local.download.GoogleChrome</string>
+	<key>Input</key>
+	<dict>
+		<key>DOWNLOAD_URL</key>
+		<string>https://dl.google.com/chrome/mac/universal/stable/GGRO/googlechrome.dmg</string>
+		<key>NAME</key>
+		<string>GoogleChrome</string>
+	</dict>
+	<key>ParentRecipe</key>
+	<string>com.github.autopkg.download.googlechrome</string>
+	<key>ParentRecipeTrustInfo</key>
+	<dict>
+		<key>non_core_processors</key>
+		<dict/>
+		<key>parent_recipes</key>
+		<dict>
+			<key>com.github.autopkg.download.googlechrome</key>
+			<dict>
+				<key>git_hash</key>
+				<string>b0efb8ccf082444c2e7f3774134352a3c5dbafc8</string>
+				<key>path</key>
+				<string>~/Library/AutoPkg/RecipeRepos/com.github.autopkg.recipes/GoogleChrome/GoogleChrome.download.recipe</string>
+				<key>sha256_hash</key>
+				<string>2bdc3f2e3cbdca9c01181f97f5483554a22c48cc078a9c170e57bb6fd2a4d676</string>
+			</dict>
+		</dict>
+	</dict>
+</dict>
+</plist>

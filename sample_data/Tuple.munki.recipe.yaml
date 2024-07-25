@@ -1,0 +1,35 @@
+Description: Downloads the latest version of Tuple and imports it into Munki.
+Identifier: com.github.bfreezy.munki.tuple
+ParentRecipe: com.github.bfreezy.download.tuple
+MinimumVersion: '2.3'
+
+Input:
+  NAME: tuple
+  MUNKI_REPO_SUBDIR: apps/%NAME%
+  pkginfo:
+    catalogs:
+    - testing
+    - production
+    category: Developer Tools
+    description: Tuple is a Mac-only remote pair programming tool for discerning developers.
+    developer: Tuple LLC
+    display_name: Tuple
+    name: '%NAME%'
+    postinstall_script: |
+      #!/bin/bash
+      # Add directory traversal for the entire application and ensure
+      # all executables are executable by group and other
+      /bin/chmod -R go+rX /Applications/Tuple.app
+    unattended_install: true
+
+Process:
+- Processor: DmgCreator
+  Arguments:
+    dmg_path: '%RECIPE_CACHE_DIR%/%NAME%.dmg'
+    dmg_root: '%RECIPE_CACHE_DIR%/%NAME%'
+
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%dmg_path%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'
+

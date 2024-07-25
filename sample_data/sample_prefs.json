@@ -1,0 +1,19 @@
+{
+  "RECIPE_SEARCH_DIRS": [
+    ".",
+    "/Users/nmcspadden/Library/Application Support/AutoPkg/Recipes",
+    "/Library/Application Support/AutoPkg/Recipes",
+    "/Users/nmcspadden/Library/Application Support/AutoPkg/RecipeRepos/recipes"
+  ],
+  "CACHE_DIR": "/Users/nmcspadden/Library/Application Support/AutoPkg/Cache",
+  "RECIPE_OVERRIDE_DIR": "/Users/nmcspadden/Library/Application Support/AutoPkg/RecipeOverrides",
+  "RECIPE_REPO_DIR": "/Users/nmcspadden/Library/Application Support/AutoPkg/RecipeRepos",
+  "GITHUB_TOKEN_PATH": "/Users/nmcspadden/Library/Application Support/AutoPkg/gh_token",
+  "RECIPE_MAP_PATH": "/Users/nmcspadden/Library/Application Support/AutoPkg/recipe_map.json",
+  "MUNKI_REPO": "/Users/Shared/munki",
+  "DISABLE_CODE_SIGNATURE_VERIFICATION": false,
+  "EXTRAS": {
+    "super long test name": "super long result value",
+    "short": "short2"
+  }
+}

@@ -1,0 +1,30 @@
+Description: Downloads the latest version of Tuple.
+Identifier: com.github.bfreezy.download.tuple
+MinimumVersion: '2.3'
+
+Input:
+  NAME: Tuple
+  SPARKLE_FEED_URL: https://s3.us-east-2.amazonaws.com/tuple-releases/production/sparkle/appcast.xml
+
+Process:
+- Processor: SparkleUpdateInfoProvider
+  Arguments:
+    appcast_url: '%SPARKLE_FEED_URL%'
+
+- Processor: URLDownloader
+  Arguments:
+    filename: '%NAME%-%version%.zip'
+
+- Processor: EndOfCheckPhase
+
+- Processor: Unarchiver
+  Arguments:
+    archive_path: '%pathname%'
+    destination_path: '%RECIPE_CACHE_DIR%/%NAME%'
+    purge_destination: true
+
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%RECIPE_CACHE_DIR%/%NAME%/Tuple.app'
+    requirement: anchor apple generic and identifier "app.tuple.app" and (certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = DQYU7DR9Q7)
+

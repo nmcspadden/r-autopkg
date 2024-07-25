@@ -14,7 +14,7 @@ pub const EXTRA_HELP: &str = "This is where extra help goes";
 * COMMAND LINE PARSING
 */
 #[derive(Parser)]
-#[command(version, about=ABOUT, author=AUTHOR, after_help=EXTRA_HELP, name=APPNAME, long_about = None, arg_required_else_help = true)]
+#[command(version="4.0", about=ABOUT, author=AUTHOR, after_help=EXTRA_HELP, name=APPNAME, long_about = None, arg_required_else_help = true)]
 struct APcli {
     /// Sets a custom preferences file
     #[arg(short, long, value_name = "FILE")]
