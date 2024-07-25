@@ -3,7 +3,11 @@ use std::path::PathBuf;
 use std::error::Error;
 
 use clap::{Parser, Subcommand};
+use tracing::{debug, error, info, trace, warn};
 
+/*
+* COMMAND LINE PARSING
+*/
 #[derive(Parser)]
 #[command(version, about, long_about = None, arg_required_else_help = true)]
 struct APcli {
@@ -134,7 +138,7 @@ enum Commands {
         processor: Option<String>,
     },
     /// Add one or more recipe repos from a URL, or AutoPkg org on GitHub
-    /// 
+    ///
     /// Download one or more new recipe repos and add it to the search path
     /// The 'recipe_repo_url' argument can be of the following forms:
     /// - repo (implies 'https://github.com/autopkg/repo')
@@ -146,7 +150,7 @@ enum Commands {
         recipe_repo_url: String,
     },
     /// Delete a recipe repo
-    /// 
+    ///
     /// The argument can be either the full path to a local recipe repo on disk, or a conventional shortname like "name-recipes"
     RepoDelete {
         /// A repo name ("name-recipes") or full path to a recipe repo to delete and remove from search path
@@ -190,13 +194,13 @@ enum Commands {
         quiet: bool,
     },
     /// Search for recipes on GitHub
-    /// 
+    ///
     /// The AutoPkg organization at github.com/autopkg is the canonical 'repository' of recipe repos, which is what is searched by default
     Search {
         /// Search term
         search_term: String,
         /// Use a public-scope GitHub token for a higher rate limit
-        #[arg(short, long="use-token")]
+        #[arg(short, long = "use-token")]
         token: Option<String>,
     },
     /// Update or add parent recipe trust info for a recipe override
@@ -212,13 +216,13 @@ enum Commands {
         #[arg(short, long, action = clap::ArgAction::Count)]
         verbose: u8,
         /// Path to a text file with a list of recipes to verify
-        #[arg(short, long="recipe-list", value_name="TEXT_FILE")]
+        #[arg(short, long = "recipe-list", value_name = "TEXT_FILE")]
         recipelist: Option<PathBuf>,
     },
     /// Print the current version of autopkg
     Version {
         //no subcommands
-    }
+    },
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, clap::ValueEnum)]
@@ -253,7 +257,33 @@ where
     Ok((s[..pos].parse()?, s[pos + 1..].parse()?))
 }
 
+/*
+* end COMMAND LINE PARSING
+*/
+
+/// Configure the 'tracing_subscriber' for logging across the app
+fn configure_tracing() {
+    // Tracing guide copied from https://www.hamzak.xyz/blog-posts/tracing-in-rust-a-comprehensive-guide
+    tracing_subscriber::fmt()
+        // enable everything
+        .with_max_level(tracing::Level::TRACE)
+        .compact()
+        // Display source code file paths
+        .with_file(true)
+        // Display source code line numbers
+        .with_line_number(true)
+        // Display the thread ID an event was recorded on
+        // .with_thread_ids(true)
+        // Don't display the event's target (module path)
+        .with_target(false)
+        // sets this to be the default, global collector for this application.
+        .init();
+}
+
 fn main() {
+    // This allows us to use simple macros like debug! and log!
+    configure_tracing();
+
     let cli: APcli = APcli::parse();
 
     // You can check the value provided by positional arguments, or option arguments
@@ -460,7 +490,9 @@ fn main() {
             // This would be from "repo-add <recipe_repo_url>"
             println!("Adding repo: {}", recipe_repo_url);
         }
-        Some(Commands::RepoDelete { recipe_repo_path_or_name }) => {
+        Some(Commands::RepoDelete {
+            recipe_repo_path_or_name,
+        }) => {
             // This would be from "repo-delete <recipe_repo_path_or_url>"
             println!("Deleting repo: {}", recipe_repo_path_or_name);
         }
@@ -577,7 +609,10 @@ fn main() {
             }
             if let Some(recipelist) = recipelist {
                 // This would be from "verify-trust-info <recipe> -l <recipelist>"
-                println!("Verifying trust info for recipes from list: {}", recipelist.display());
+                println!(
+                    "Verifying trust info for recipes from list: {}",
+                    recipelist.display()
+                );
             } else {
                 // This is if -l is not specified as a flag
                 println!("Verifying trust info for single recipe");
@@ -591,4 +626,9 @@ fn main() {
     }
 
     // Continued program logic goes here...
+    trace!("Trace message");
+    debug!("Debug message");
+    info!("Info message");
+    warn!("Warning message");
+    error!("Error message");
 }
