@@ -1,14 +1,23 @@
+// For development purposes
+#![allow(dead_code)]
+#![allow(unused_variables)]
+#![allow(unused_imports)]
+
 use std::path::PathBuf;
 // use anyhow::{Error, Result};
 use std::error::Error;
 
 use clap::{Parser, Subcommand};
+use r_autopkg::Preferences;
 use tracing::{debug, error, info, trace, warn};
 
 pub const APPNAME: &str = "AutoPkg";
 pub const AUTHOR: &str = "Nick McSpadden";
 pub const ABOUT: &str = "Automatically run recipes to fetch and process software";
 pub const EXTRA_HELP: &str = "This is where extra help goes";
+
+pub mod constants;
+extern crate dirs;
 
 /*
 * COMMAND LINE PARSING
@@ -266,6 +275,8 @@ where
 * end COMMAND LINE PARSING
 */
 
+/* LOGGING AND TRACING LOGIC */
+
 /// Configure the 'tracing_subscriber' for logging across the app
 fn configure_tracing() {
     // Tracing guide copied from https://www.hamzak.xyz/blog-posts/tracing-in-rust-a-comprehensive-guide
@@ -285,19 +296,28 @@ fn configure_tracing() {
         .init();
 }
 
+/* end LOGGING AND TRACING LOGIC */
+
 fn main() {
     // This allows us to use simple macros like debug! and log!
     configure_tracing();
 
     let cli: APcli = APcli::parse();
 
-    // You can check the value provided by positional arguments, or option arguments
-    if let Some(config_path) = cli.prefs.as_deref() {
-        println!("Value for config: {}", config_path.display());
+    // Create a new preferences object
+    let mut prefs = Preferences::new();
+    if let Some(prefs_argument) = cli.prefs.as_deref() {
+        info!(
+            "Canonicalized preferences file path: {}",
+            prefs_argument.canonicalize().unwrap().display()
+        );
+        let prefs_path = PathBuf::from(prefs_argument);
+        prefs = prefs.read_from_disk(&prefs_path).unwrap();
+        prefs.prefs_path = prefs_path;
     }
 
-    // You can see how many times a particular flag or argument occurred
-    // Note, only flags can have multiple occurrences
+    // Measure debug level
+    // TODO: Hook this up to actual log level in configure_tracing()
     match cli.debug {
         0 => println!("Debug mode is off"),
         1 => println!("Debug mode is kind of on"),
@@ -630,9 +650,11 @@ fn main() {
     }
 
     // Continued program logic goes here...
-    trace!("Trace message");
-    debug!("Debug message");
-    info!("Info message");
-    warn!("Warning message");
-    error!("Error message");
+    // Let's display the preferences file!
+    println!("Preferences file: {}", prefs);
+    // trace!("Trace message");
+    // debug!("Debug message");
+    // info!("Info message");
+    // warn!("Warning message");
+    // error!("Error message");
 }
