@@ -5,11 +5,16 @@ use std::error::Error;
 use clap::{Parser, Subcommand};
 use tracing::{debug, error, info, trace, warn};
 
+pub const APPNAME: &str = "AutoPkg";
+pub const AUTHOR: &str = "Nick McSpadden";
+pub const ABOUT: &str = "Automatically run recipes to fetch and process software";
+pub const EXTRA_HELP: &str = "This is where extra help goes";
+
 /*
 * COMMAND LINE PARSING
 */
 #[derive(Parser)]
-#[command(version, about, long_about = None, arg_required_else_help = true)]
+#[command(version, about=ABOUT, author=AUTHOR, after_help=EXTRA_HELP, name=APPNAME, long_about = None, arg_required_else_help = true)]
 struct APcli {
     /// Sets a custom preferences file
     #[arg(short, long, value_name = "FILE")]
@@ -300,8 +305,7 @@ fn main() {
         _ => println!("Don't be crazy"),
     }
 
-    // You can check for the existence of subcommands, and if found use their
-    // matches just as you would the top level cmd
+    // Handle all CLI subcommands
     match &cli.command {
         Some(Commands::Audit { recipelist, recipe }) => {
             // This would be from "audit -l <recipelist>"
