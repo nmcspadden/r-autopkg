@@ -17,6 +17,7 @@ pub const ABOUT: &str = "Automatically run recipes to fetch and process software
 pub const EXTRA_HELP: &str = "This is where extra help goes";
 
 pub mod constants;
+pub mod recipes;
 extern crate dirs;
 
 /*
